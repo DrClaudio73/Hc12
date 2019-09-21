@@ -2,7 +2,7 @@
 
 //const byte HC12RxdPin = 4; // Receive Pin on HC12
 //const byte HC12TxdPin = 5; // Transmit Pin on HC12
-const byte HC12SetPin = PB12; // Transmit Pin on HC12
+const byte HC12SetPin = PB12; // Set Pin on HC12
 const byte LedPin = PC13; // Led Pin on STM32
 
 int ledStatus=0;
