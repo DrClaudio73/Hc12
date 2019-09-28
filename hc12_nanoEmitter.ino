@@ -59,7 +59,7 @@ void loop() {
 
     HC12.print("BEF0BEF");
     HC12.println(k);          
-    Serial.print("Sending BEF0BEF0");    // Send local command to remote HC12 before changing settings
+    Serial.print("Sending BEF0BEF");    // Send local command to remote HC12 before changing settings
     Serial.println(k);                
     k++; 
     delay(2000);       
