@@ -1,0 +1,85 @@
+menu "Master Station Main Configuration"
+
+config BLINK_GPIO
+    int "Blink GPIO number"
+	range 0 34
+	default 2
+	help
+		GPIO number (IOxx) to blink on and off.
+
+		Some GPIOs are used for other purposes (flash connections, etc.) and cannot be used to blink.
+
+		GPIOs 35-39 are input-only so cannot be used as outputs.
+
+config RESET_SIM800GPIO
+    int "GPIO number for SIM800 module RESET pin"
+	range 0 34
+	default 4
+	help
+		GPIO number (IOxx) to reset SIM800 module (is the GPIO connected to RESET pin of SIM800).
+
+		Some GPIOs are used for other purposes (flash connections, etc.) and cannot be used to blink.
+
+		GPIOs 35-39 are input-only so cannot be used as outputs.
+
+config UART_SIM800TXGPIO
+    int "GPIO number for USART SIM800 TX pin"
+	range 0 34
+	default 22
+	help
+		GPIO number (IOxx) to receive from SIM800 (is the GPIO connected to TX pin of SIM800)
+
+		Some GPIOs are used for other purposes (flash connections, etc.) and cannot be used to blink.
+
+		GPIOs 35-39 are input-only so cannot be used as outputs.
+
+config UART_SIM800RXGPIO
+    int "GPIO number for USART SIM800 RX pin"
+	range 0 34
+	default 23
+	help
+		GPIO number (IOxx) to trasnmit to SIM800 (is the GPIO connected to RX pin of SIM800)
+
+		Some GPIOs are used for other purposes (flash connections, etc.) and cannot be used to blink.
+
+		GPIOs 35-39 are input-only so cannot be used as outputs.
+
+config HC12SETGPIO
+    int "GPIO number for HC12 module SET pin"
+	range 0 34
+	default 5
+	help
+		GPIO number (IOxx) to blink on and off (is the GPIO connected to SET pin of HC12)
+
+		Some GPIOs are used for other purposes (flash connections, etc.) and cannot be used to blink.
+
+		GPIOs 35-39 are input-only so cannot be used as outputs.
+
+config HC12TXGPIO
+    int "GPIO number for USART HC12 TX"
+	range 0 34
+	default 18
+	help
+		GPIO number (IOxx) to receive from HC12 (is the GPIO connected to TX of HC12)
+
+		Some GPIOs are used for other purposes (flash connections, etc.) and cannot be used to blink.
+
+		GPIOs 35-39 are input-only so cannot be used as outputs.
+
+config HC12RXGPIO
+    int "GPIO number for USART HC12 RX"
+	range 0 34
+	default 19
+	help
+		GPIO number (IOxx) to trasnmit to HC12 (is the GPIO connected to RX of HC12)
+
+		Some GPIOs are used for other purposes (flash connections, etc.) and cannot be used to blink.
+
+		GPIOs 35-39 are input-only so cannot be used as outputs.
+
+config CH_NO_HC12
+    hex "Channel Number HC12"
+	default 0x01
+	help
+		Channel Number HC12 to exhcange data with slave station.
+endmenu
