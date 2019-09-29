@@ -1,4 +1,14 @@
-#include"credentials.h"
+//#include"credentials.h"
+#ifndef UART_NUM_1
+// UART driver
+#include "driver/uart.h"
+#endif
+#include <stdio.h>
+#include "string.h"
+#include "driver/gpio.h"
+#include "esp_log.h"
+#include "credentials.h"
+
 #define BLINK_GPIO CONFIG_BLINK_GPIO
 #define RESET_SIM800GPIO CONFIG_RESET_SIM800GPIO
 #define UART_SIM800TXGPIO CONFIG_UART_SIM800TXGPIO
@@ -7,6 +17,32 @@
 #define HC12TXGPIO CONFIG_HC12TXGPIO
 #define HC12RXGPIO CONFIG_HC12RXGPIO
 #define CH_NO_HC12  CONFIG_CH_NO_HC12
+
+
+#ifdef CONFIG_BAUDTRANS1200
+    #define BAUDETRANSPARENTMODE 1200
+#endif
+#ifdef CONFIG_BAUDTRANS2400
+    #define BAUDETRANSPARENTMODE 2400
+#endif
+#ifdef CONFIG_BAUDTRANS4800
+    #define BAUDETRANSPARENTMODE 4800
+#endif
+#ifdef CONFIG_BAUDTRANS9600
+    #define BAUDETRANSPARENTMODE 9600
+#endif
+#ifdef CONFIG_BAUDTRANS19200
+    #define BAUDETRANSPARENTMODE 19200
+#endif
+#ifdef CONFIG_BAUDTRANS38400
+    #define BAUDETRANSPARENTMODE 38400
+#endif
+#ifdef CONFIG_BAUDTRANS57600
+    #define BAUDETRANSPARENTMODE 57600
+#endif
+#ifdef CONFIG_BAUDTRANS115200
+    #define BAUDETRANSPARENTMODE 115200
+#endif
 
 static const char *TAG = "SIM800-HC12App";
 // max buffer length

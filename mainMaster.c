@@ -40,7 +40,49 @@ static char tag[] = "masterHC12";
 int kkk=0;
 int ledus=0;
 
-void start_myRadioHC12(void) {
+void setupmySIM800(void){
+    gpio_pad_select_gpio((gpio_num_t)RESET_SIM800GPIO);
+    /* Set the GPIO as a push/pull output */
+    gpio_set_direction((gpio_num_t)RESET_SIM800GPIO, GPIO_MODE_OUTPUT);
+    gpio_set_level((gpio_num_t)RESET_SIM800GPIO, RESET_IDLE); //does not reset for the time being
+
+    // configure the UART1 controller
+    uart_config_t uart_configSIM800 = {
+        .baud_rate = 115200,
+        .data_bits = UART_DATA_8_BITS,
+        .parity    = UART_PARITY_DISABLE,
+        .stop_bits = UART_STOP_BITS_1,
+        .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
+        .rx_flow_ctrl_thresh = 122,
+        .use_ref_tick= false
+    };
+    uart_param_config(UART_NUM_1, &uart_configSIM800);
+    uart_set_pin(UART_NUM_1, UART_SIM800RXGPIO, UART_SIM800TXGPIO, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE); //TX , RX
+    uart_driver_install(UART_NUM_1, 1024, 0, 0, NULL, 0);
+    //uint8_t *data1 = (uint8_t *) malloc(1024);
+
+}
+
+void setupmyRadioHC12(void) {
+    gpio_pad_select_gpio((gpio_num_t)HC12SETGPIO);
+    /* Set the GPIO as a push/pull output  */
+    gpio_set_direction((gpio_num_t)HC12SETGPIO, GPIO_MODE_OUTPUT);
+    gpio_set_level((gpio_num_t)HC12SETGPIO, 1); //enter transparent mode
+
+    uart_config_t uart_configHC12 = {
+        .baud_rate = BAUDETRANSPARENTMODE,
+        .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
+        .data_bits = UART_DATA_8_BITS,
+        .parity    = UART_PARITY_DISABLE,
+        .stop_bits = UART_STOP_BITS_1,
+        .rx_flow_ctrl_thresh = 122,
+        .use_ref_tick= false
+    };
+    // configure the UART2 controller 
+    uart_param_config(UART_NUM_2, &uart_configHC12);
+    uart_set_pin(UART_NUM_2, HC12RXGPIO, HC12TXGPIO, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE); //TX , RX
+    uart_driver_install(UART_NUM_2, 1024, 0, 0, NULL, 0);
+
     /*myRadio.begin();
     myRadio.setPALevel(RF24_PA_MAX); //RF24_PA_MAX
     myRadio.setChannel(CH_No_nRF24); //0x4c
@@ -63,18 +105,15 @@ void start_myRadioHC12(void) {
     return;
 }
 
-bool write_nrf24(RF24 myRadio, int level) {
+bool write_HC12(uart_port_t uart_controller, int level) {
     bool success;
     char pino[50];
     for (int k=0; k<50; k++){
         pino[k]=0;
     }
-    //rf24.write("Ciao Claudio te lo sei meritato", 32);
-    //ESP_LOGD(tag, "Transmitted data");
     sprintf(pino,"Ciao: %d!",level);
-    //level=1-level;
-    //vTaskDelay(2000 / portTICK_PERIOD_MS);
-    success=myRadio.write(pino, 12);
+    /*success=*/scriviUART(UART_NUM_1, pino); //STUB always TRUE until ACK check is perfrmed see line BELOW
+    success=true; //STUB always TRUE until ACK check is perfrmed see line ABOVE
     vTaskDelay(200 / (1000*portTICK_RATE_MS)); //delayMicroseconds(128);
     //myRadio.printDetails();
     ESP_LOGD(tag, "Transmitted data");
@@ -130,7 +169,6 @@ void getCommand(void * parametro){
     }	
 }
 
-toggleLed
 void toggleLed(void* parametro){
     uint32_t livello_led=0;
     while(1){
@@ -216,19 +254,19 @@ void setup(void){
     gpio_pad_select_gpio((gpio_num_t)BLINK_GPIO);
     /* Set the GPIO as a push/pull output */
     gpio_set_direction((gpio_num_t)BLINK_GPIO, GPIO_MODE_OUTPUT);
-    gpio_set_level((gpio_num_t)BLINK_GPIO, 1);
+    gpio_set_level((gpio_num_t)BLINK_GPIO, 1); //switch the led OFF
 
-    gpio_pad_select_gpio((gpio_num_t)RESET_SIM800GPIO);
-    /* Set the GPIO as a push/pull output */
+    /*gpio_pad_select_gpio((gpio_num_t)RESET_SIM800GPIO);
+    //Set the GPIO as a push/pull output 
     gpio_set_direction((gpio_num_t)RESET_SIM800GPIO, GPIO_MODE_OUTPUT);
-    gpio_set_level((gpio_num_t)RESET_SIM800GPIO, RESET_IDLE); //does not reset right now
+    gpio_set_level((gpio_num_t)RESET_SIM800GPIO, RESET_IDLE); *///does not reset for the time being
     
-    gpio_pad_select_gpio((gpio_num_t)HC12SETGPIO);
-    /* Set the GPIO as a push/pull output */
+    /*gpio_pad_select_gpio((gpio_num_t)HC12SETGPIO);
+    // Set the GPIO as a push/pull output 
     gpio_set_direction((gpio_num_t)HC12SETGPIO, GPIO_MODE_OUTPUT);
-    gpio_set_level((gpio_num_t)HC12SETGPIO, 1); //enter transparent mode
+    gpio_set_level((gpio_num_t)HC12SETGPIO, 1); *///enter transparent mode
 
-    // configure the UART1 controller
+    /* configure the UART1 controller
     uart_config_t uart_configSIM800 = {
         .baud_rate = 115200,
         .data_bits = UART_DATA_8_BITS,
@@ -237,32 +275,37 @@ void setup(void){
         .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
         .rx_flow_ctrl_thresh = 122,
         .use_ref_tick= false
-    };
+    };*/
     
-    uart_config_t uart_configHC12 = {
-        .baud_rate = 2400,
+    /*    uart_config_t uart_configHC12 = {
+        .baud_rate = BAUDETRANSPARENTMODE,
+        .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
         .data_bits = UART_DATA_8_BITS,
         .parity    = UART_PARITY_DISABLE,
         .stop_bits = UART_STOP_BITS_1,
-        .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
         .rx_flow_ctrl_thresh = 122,
         .use_ref_tick= false
-    };
+    };*/
 
-    uart_param_config(UART_NUM_1, &uart_configSIM800);
+    /*uart_param_config(UART_NUM_1, &uart_configSIM800);
     uart_set_pin(UART_NUM_1, UART_SIM800RXGPIO, UART_SIM800TXGPIO, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE); //TX , RX
-    uart_driver_install(UART_NUM_1, 1024, 0, 0, NULL, 0);
+    uart_driver_install(UART_NUM_1, 1024, 0, 0, NULL, 0);*/
     //uint8_t *data1 = (uint8_t *) malloc(1024);
 
-    // configure the UART2 controller 
+    /* configure the UART2 controller 
     uart_param_config(UART_NUM_2, &uart_configHC12);
     uart_set_pin(UART_NUM_2, HC12RXGPIO, HC12TXGPIO, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE); //TX , RX
-    uart_driver_install(UART_NUM_2, 1024, 0, 0, NULL, 0);
+    uart_driver_install(UART_NUM_2, 1024, 0, 0, NULL, 0);*/
     //uint8_t *data2 = (uint8_t *) malloc(1024);
 
     ESP_LOGW(TAG,"==============================");
     ESP_LOGW(TAG,"Welcome to SIM800L control App");
     ESP_LOGW(TAG,"==============================\r\n");
+    //Initializing GSM Module
+    setupmySIM800();
+
+    //Initializing Radio HC12
+    setupmyRadioHC12();
 
     ESP_LOGI(TAG,"First allowed sim number is %s\r\n",ALLOWED1);
     ESP_LOGI(TAG,"Second allowed sim number is %s\r\n",ALLOWED2);
@@ -275,8 +318,6 @@ void setup(void){
     vTaskDelay(500 / portTICK_RATE_MS);
     gpio_set_level((gpio_num_t)BLINK_GPIO, 0);
 
-    //Initializing Radio RF24
-    start_myRadioHC12();
     //setUpScannermyRadioRF24();
     //while(1) {
     //    loopScannermyRadio();
@@ -292,7 +333,9 @@ void setup(void){
     //xTaskCreate(&getCommand, "getCommand", 8192, NULL, 5, NULL); QUESTA LINEA IN PRODUZIONE LA TOGLIAMO AD EVITARE PROBLEMI
     //Launching Task for blinking led according to signal quality report 
     //xTaskCreate(&toggleLed, "toggleLed", 4096, NULL, 5, NULL);
+    return;
 }
+
 /*
 void test_performance(void){
     int num_sent=0;
@@ -412,7 +455,8 @@ void loop(void){
         char condition5[5]="OK\r\n";
         if (verificaComando(UART_NUM_1,replyTone,condition5,&parametri_globali)==0){
                     ESP_LOGI(TAG,"\nReply tone sent!!!");
-                    if(write_nrf24(myRadio,DTMF)==true){
+
+                    if(write_HC12(UART_NUM_2,DTMF)==true){ //sending command to remote station
                         ESP_LOGI(TAG,"\nMessage sent to SlaveStation was succesffully delivered!!!");   
                         sprintf(replyTone,"AT+VTS=\"{%d,1}\"",DTMF);
                         verificaComando(UART_NUM_1,replyTone,condition5,&parametri_globali);
@@ -522,7 +566,7 @@ void loop(void){
                 }*/
         }
     }
-
+    return;
 }
 
 // Main application
@@ -532,4 +576,5 @@ void app_main() {
     while(1)
         loop();
     fflush(stdout);
-    }
+    return;
+}
