@@ -84,7 +84,7 @@ config CH_NO_HC12
 		Channel Number HC12 to exhcange data with slave station.
 
 choice TRANSPARENTMODEBAUDHC12
-		prompt "Choice Value"
+		prompt "Baud rate in transparent mode to remote station"
 		default BAUDTRANS2400
 		help
 			Select Baud rate for transparent trasnmit mode
@@ -104,6 +104,17 @@ choice TRANSPARENTMODEBAUDHC12
 			bool "57600"
 		config BAUDTRANS115200
 			bool "115200"
+endchoice
+
+choice SIM800XMODULE
+		prompt "Type of SIM800x module"
+		default SIM800MODULE
+		help
+			Select type of module to be interfaced
+		config SIM800MODULE
+			bool "SIM800"
+		config SIM808MODULE
+			bool "SIM808"
 endchoice
 
 endmenu

@@ -1,0 +1,3 @@
+DA FARE
+
+Mettere tutti i GPIO parametrici in Kconfig.projbuild

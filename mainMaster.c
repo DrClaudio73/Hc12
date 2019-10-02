@@ -30,11 +30,16 @@ int checkStatus() { // CHECK STATUS FOR RINGING or IN CALL
 #include "driver/gpio.h"
 #include "sdkconfig.h"
 #include "esp_log.h"
-#include "simOK.h"
 
+//Personal modules includes
+#include "simOK.h"
+#include "manageUART.h"
+#include "credentials.h"
 //RF24 componenets
 //#include <RF24.h>
 static char tag[] = "masterHC12";
+//static char allowed1[] = ALLOWED1;
+//static char allowed2[] = ALLOWED2;
 
 //RF24 myRadio(SPI_nRF24_CE,SPI_nRF24_CSN); //ce , csn
 int kkk=0;
@@ -133,8 +138,8 @@ void getCommand(void * parametro){
 
     while(1) {
         int c = getchar();
-        // nothing to read, give to RTOS the control
-        if(c < 0) {
+        
+        if(c < 0) { // nothing to read, give to RTOS the control
             vTaskDelay(10 / portTICK_PERIOD_MS);
             continue;
         }
@@ -197,59 +202,14 @@ int checkPhoneActivityStatus(char* parametro_feedback) { // CHECK STATUS FOR RIN
 }
 
 
-int checkCallingNumber(){
-    char *line1;
-    char* token;
-    char* token2;
-    int is_calling_number_valid;
-    is_calling_number_valid=+1; //-1=Number Calling not allowed ; 0=Number Calling allowed; ; +1=No calling number
-    ESP_LOGI(TAG,"checkCallingNumber()\n");
-    for(int k=0;k<10;k++){
-        line1 = read_line(UART_NUM_1);
-        printf("line read is:%s",line1);
-        //+CLIP: "+3912345678",145,"",0,"ccccccc",0
-        if (strncmp("+CLIP: ",line1,strlen("+CLIP: "))==0){
-            token = strtok(line1, "CLIP: ");
-            token = strtok(NULL, "CLIP: ");
-            //printf("token: %s",token);
-            token2 = strtok(token, "\"");
-            sprintf(parametri_globali.parametro_feedback,"%s",token2);
-            //printf("token2: %s",token2);
-            if (strncmp(ALLOWED1,token2,sizeof(ALLOWED1))==0){
-                is_calling_number_valid=0;
-                //return(0); //OK: Valid Caller
-            } else if (strncmp(ALLOWED2,token2,sizeof(ALLOWED2))==0) {
-                is_calling_number_valid=0;
-                //return(0); //OK: Valid Caller
-            } else {
-                is_calling_number_valid=-1;
-                //return(-1); //Not valid Caller
-            }
-        }
-    }
-
-    return(is_calling_number_valid);
-    
-    if (is_calling_number_valid==0){
-        return(is_calling_number_valid); // OK numbero valid
-    }
-    
-
-    if (parametri_globali.calling_number_valid==0){
-        sprintf(parametri_globali.parametro_feedback,"%s",parametri_globali.calling_number);
-        parametri_globali.calling_number_valid=-1;
-        parametri_globali.calling_number[0]=0;
-        return(0); // OK number valid
-    }
-
-    return is_calling_number_valid; //Only different feedback
-}
-
 void setup(void){
     parametri_globali.quality=0;
     parametri_globali.pending_DTMF=-1;
     parametri_globali.calling_number[0]=0;
     parametri_globali.calling_number_valid=NO_CALLER;
+    strcpy(parametri_globali.allowed1,ALLOWED1);
+    strcpy(parametri_globali.allowed2,ALLOWED2);
+
 
     gpio_pad_select_gpio((gpio_num_t)BLINK_GPIO);
     /* Set the GPIO as a push/pull output */
@@ -493,7 +453,7 @@ void loop(void){
         } else if (current_phone_status == 3){ 
             printf("RINGING\n");
             //RINGING
-            /*if (checkCallingNumber()==0){
+            /*if (checkCallingNumber(parametri_globali)==0){
                 ESP_LOGI(TAG,"\n********Valid calling number: %s. Answering call.....",parametri_globali.parametro_feedback);;
                 char msg1[4]="ATA";
                 char condition1[5]="OK\r\n";
