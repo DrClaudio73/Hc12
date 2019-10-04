@@ -12,4 +12,4 @@ void scriviUART(uart_port_t uart_controller, char* text);
 char* read_line(uart_port_t uart_controller);
 
 //print on default UART a text
-void stampa_stringa(char* line);
+void stampaStringa(char* line);

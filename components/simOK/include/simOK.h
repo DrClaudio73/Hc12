@@ -57,8 +57,10 @@ static const char *TAG = "SIM800-HC12App";
 // max buffer length
 #ifndef LINE_MAX
 #define LINE_MAX	123
+#define NUMCELL_MAX	20
 #define MAX_ATTEMPTS 22
 #define NUM_LINES_TO_FLUSH 4
+#define NO_PENDING_DTMF_TONE -1
 #endif
 
 /*#define NOT_ALLOWED_CALLER -1
@@ -68,27 +70,30 @@ enum typeOfCaller {NOT_ALLOWED_CALLER=-1, ALLOWED_CALLER = 0, NO_CALLER =1};
 
 typedef struct Parsed_Params
 {
-    int quality;
-    char parametro_feedback[LINE_MAX];
+    int CSQ_qualityLevel;
+    int phoneActivityStatus;
+    char generic_parametro_feedback[LINE_MAX];
     int pending_DTMF;
-    char calling_number[LINE_MAX];
+    char calling_number[NUMCELL_MAX];
     enum typeOfCaller calling_number_valid; //-1=Number Calling not allowed ; 0=Number Calling allowed; ; +1=No calling number
+} parsed_params; //struct gun arnies;
+
+typedef struct Allowed_IDs
+{
     char allowed1[LINE_MAX];
     char allowed2[LINE_MAX];
-} parsed_params; //struct gun arnies;
+} allowed_IDs; //struct gun arnies;
 
 int checkDTMF(char* line);
 
-char* parse_line(char* line, parsed_params* parsed_params);
+char* parse_line(char* line, parsed_params* parametri_globali, allowed_IDs chiamantiAbilitati);
 
-int verificaComando(uart_port_t uart_controller, char* text, char* condition, parsed_params* parametri_globali);
+int verificaComando(uart_port_t uart_controller, char* command, char* condition, parsed_params* parametri_globali, allowed_IDs chiamantiAbilitati);
 
-void reset_module(uart_port_t uart_controller, parsed_params* parametri_globali);
-
-void foreverRed() ;
+void reset_module(uart_port_t uart_controller, parsed_params* parametri_globali, allowed_IDs chiamantiAbilitati);
 
 //enum typeOfCaller checkCallingNumber(parsed_params* parametri_globali);
 
-int checkPhoneActivityStatus(char* parametro_feedback);
+int checkPhoneActivityStatus(parsed_params* parametri_globali, allowed_IDs chiamantiAbilitati);
 
-int simOK(uart_port_t uart_controller, parsed_params* parametri_globali);
+int simOK(uart_port_t uart_controller, parsed_params* parametri_globali, allowed_IDs chiamantiAbilitati);
