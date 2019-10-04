@@ -124,17 +124,47 @@ void setupmyRadioHC12(void) {
 }
 
 bool write_HC12(uart_port_t uart_controller, int level) {
+    char *line_read;
     bool success;
-    char pino[50];
+    char pino[250],expectedACKpino[255];
+    int num_max_attempts=5;
+
     for (int k=0; k<50; k++){
         pino[k]=0;
     }
-    sprintf(pino,"Ciao: %d!",level);
-    /*success=*/scriviUART(UART_NUM_1, pino); //STUB always TRUE until ACK check is perfrmed see line BELOW
-    success=true; //STUB always TRUE until ACK check is perfrmed see line ABOVE
-    vTaskDelay(200 / (1000*portTICK_RATE_MS)); //delayMicroseconds(128);
+
+    sprintf(pino,"Ciao: %d!\n",level);
+    sprintf(expectedACKpino,"ACKCiao: %d!!",level);
+
+    line_read =read_line(uart_controller);
+    line_read =read_line(uart_controller);
+    line_read =read_line(uart_controller);
+    line_read =read_line(uart_controller);
+    line_read =read_line(uart_controller);
+
+    success=false;
+    for (int k=num_max_attempts;k>=0; k--){
+        scriviUART(uart_controller, pino);
+        printf("writeHC12 printed %s on %d UART\n", pino, uart_controller);
+        vTaskDelay(500 / portTICK_RATE_MS);
+        line_read =read_line(uart_controller);
+        printf("lineread: %s\n",line_read);
+        printf("epectedACK: %s\n",expectedACKpino);
+        
+        if(strncmp(expectedACKpino,line_read,strlen(expectedACKpino))==0){
+            printf("Strings are equal. What a success!!!!!\n");
+            success=true;
+            k=-1;
+            ESP_LOGD(tag, "Transmitted data");
+        } else {
+            ESP_LOGD(tag, "Transmitted NOT data");
+            printf("String are NOT equal. What a nightmare!!!!!\n");
+        }
+    }
+    //success=true; //STUB always TRUE until ACK check is perfrmed see line ABOVE
+
     //myRadio.printDetails();
-    ESP_LOGD(tag, "Transmitted data");
+    //ESP_LOGD(tag, "Transmitted data");
     return(success);
 }
 
