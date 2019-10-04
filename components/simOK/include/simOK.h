@@ -67,6 +67,8 @@ static const char *TAG = "SIM800-HC12App";
 #define ALLOWED_CALLER 0
 #define NO_CALLER +1*/
 enum typeOfCaller {NOT_ALLOWED_CALLER=-1, ALLOWED_CALLER = 0, NO_CALLER =1};
+// phone activity status: 0= ready, 2= unknown, 3= ringing, 4= in call
+enum phoneActivityStatus {PHONE_READY=0, PHONE_STATUS_UNKNOWN = 2, RINGING =3, CALL_IN_PROGRESS =4};
 
 typedef struct Parsed_Params
 {
@@ -83,6 +85,7 @@ typedef struct Allowed_IDs
     char allowed1[LINE_MAX];
     char allowed2[LINE_MAX];
 } allowed_IDs; //struct gun arnies;
+
 
 int checkDTMF(char* line);
 

@@ -43,9 +43,7 @@ char* parse_line(char* line, parsed_params* parametri_globali, allowed_IDs chiam
     if (strncmp("+CSQ: ",line,6)==0){
         //printf("\r\nSignal Quality Report!!!\r\n");
         token = strtok(line, "+CSQ: ");
-        //printf("token: %s",token);
         token2 = strtok(token, ",");
-        //printf("token2: %s",token2);
         parametri_globali->CSQ_qualityLevel= atoi(token2);
         sprintf(parametri_globali->generic_parametro_feedback,"%s",token2);
         sprintf(subline,"%s%s","Signal Quality Report!!! Level=",parametri_globali->generic_parametro_feedback);
@@ -56,7 +54,6 @@ char* parse_line(char* line, parsed_params* parametri_globali, allowed_IDs chiam
 
     if (strncmp("+CPAS: ",line,strlen("+CPAS: "))==0){
         //printf("before: %d",parametri_globali->phoneActivityStatus);
-
         token = strtok(line, "+CPAS: ");
         //printf("token: %s",token);
         parametri_globali->phoneActivityStatus= atoi(token);
@@ -65,7 +62,6 @@ char* parse_line(char* line, parsed_params* parametri_globali, allowed_IDs chiam
         printf(line);
 
         //printf("atoi: %d",parametri_globali->phoneActivityStatus);
-        
         printf("\n");
         return subline;
     }

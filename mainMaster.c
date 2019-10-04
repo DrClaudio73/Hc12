@@ -456,17 +456,17 @@ void loop(void){
         gpio_set_level((gpio_num_t)BLINK_GPIO, ledus);
         kkk=0;
         int retCode = checkPhoneActivityStatus(&parametri_globali,allowedCallers);
-        if (parametri_globali.phoneActivityStatus == 0) {
+        if (parametri_globali.phoneActivityStatus == PHONE_READY) {
             ESP_LOGI(TAG,"No call in progress");
             //digitalWrite(red, LOW); // red LED off
-        } else if ((retCode == -1) || (parametri_globali.phoneActivityStatus == 2)){
+        } else if ((retCode == -1) || (parametri_globali.phoneActivityStatus == PHONE_STATUS_UNKNOWN)){
             ESP_LOGE(TAG,"Not possible to determine Phone Activity Status!!!");
             // QUI PUOI METTERE UN TENTATUVI DI RESET AGENDO SU D9 e CON UN reset_module (che forse la farai già che agisce su D9)
             if (simOK(UART_NUM_1,&parametri_globali,allowedCallers)==-1){
                 ESP_LOGE(TAG,"\nSim808 module not found, stop here!");
                 foreverRed();
             } 
-        } else if (parametri_globali.phoneActivityStatus == 3){ 
+        } else if (parametri_globali.phoneActivityStatus == RINGING){ 
             printf("RINGING\n");
             ESP_LOGW(TAG,"RINGING!!!!");
             //RINGING
@@ -541,7 +541,7 @@ void loop(void){
                 {
                     printf("\nnop\n");
                 }*/
-        } else if (parametri_globali.phoneActivityStatus == 4) {
+        } else if (parametri_globali.phoneActivityStatus == CALL_IN_PROGRESS) {
             printf("CALL IN PROGRESS\n");
             ESP_LOGW(TAG,"CALL IN PROGRESS!!!!");
         }
